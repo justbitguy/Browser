@@ -16,7 +16,6 @@
 {
     NSButton* m_backButton;
     NSButton* m_forwardButton;
-    WebView* m_webView;
     NSTextField* m_urlField;
     WebViewController* m_webViewController;
 }

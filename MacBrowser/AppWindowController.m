@@ -65,6 +65,7 @@
     
     // create UI.
     [self UI];
+    [self go];
 }
 
 - (void)UI
@@ -103,6 +104,7 @@
     CGFloat width = self.window.frame.size.width - BTN_WIDTH*4;
     m_urlField = [[NSTextField alloc] initWithFrame:NSMakeRect(URLField_X, 0, width, URLField_HEIGHT)];
     [m_urlField setFont:[NSFont userFontOfSize:18.0]];
+    [m_urlField setStringValue:@"http://www.baidu.com"];
     
     // webivew.
     CGFloat windowWidth = self.window.frame.size.width;
@@ -173,8 +175,7 @@
     CGFloat winHeight = winSize.height;
     
     [m_urlField setFrameSize:NSMakeSize(winWidth - 4*BTN_WIDTH, BTN_HEIGHT)];
-    [m_webView setFrameSize:NSMakeSize(winWidth, winHeight)];
-    
+    [self.webViewController setWebViewFrame:NSMakeRect(0, BTN_HEIGHT, winWidth, winHeight)];
 }
 
 #pragma mark - 

@@ -23,6 +23,7 @@
 }
 
 - (id)initWithFrame:(NSRect)frameRect;
+- (void)setWebViewFrame:(NSRect)frameRect;
 
 // web methods
 - (void)load:(NSString*)url;

@@ -36,6 +36,11 @@
     [m_webView setFrameLoadDelegate:self];
 }
 
+-(void)setWebViewFrame:(NSRect)frameRect
+{
+    [m_webView setFrame:frameRect];
+}
+
 - (void)dealloc
 {
     [m_webView release];
