@@ -19,8 +19,6 @@
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
     appWindowController = [[AppWindowController alloc] initWithWindow:nil];
-    [appWindowController loadWindow];
-
 }
 
 @end

@@ -10,12 +10,16 @@
 
 @class  WebView;
 @class WebViewController;
+@protocol ViewControllerDelegate;
 
-@interface AppWindowController : NSWindowController <NSWindowDelegate>
+@interface AppWindowController : NSWindowController <NSWindowDelegate, ViewControllerDelegate>
 {
+    NSButton* m_backButton;
+    NSButton* m_forwardButton;
     WebView* m_webView;
     NSTextField* m_urlField;
     WebViewController* m_webViewController;
 }
 
+@property (nonatomic, readonly) WebViewController* webViewController;
 @end

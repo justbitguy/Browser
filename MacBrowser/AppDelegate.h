@@ -10,14 +10,9 @@
 
 @class AppWindowController;
 
-
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 {
     AppWindowController* appWindowController;
-//    NSWindow* m_window;
-    
 }
-
-//@property (assign) NSWindow *window;
 
 @end

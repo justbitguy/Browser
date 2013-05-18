@@ -96,22 +96,46 @@
 		279AA2E21747554100E40E46 /* MacBrowser */ = {
 			isa = PBXGroup;
 			children = (
+				279AA2FF1747577200E40E46 /* Classes */,
+				279AA2FE1747573D00E40E46 /* utilities */,
+				279AA2FD1747572800E40E46 /* Controllers */,
 				279AA2E31747554100E40E46 /* AppDelegate.h */,
 				279AA2E41747554100E40E46 /* AppDelegate.m */,
+				279AA2EF1747554100E40E46 /* main.m */,
+			);
+			path = MacBrowser;
+			sourceTree = "<group>";
+		};
+		279AA2FD1747572800E40E46 /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
 				279AA2E51747554100E40E46 /* AppWindowController.h */,
 				279AA2E61747554100E40E46 /* AppWindowController.m */,
+				279AA2F21747554100E40E46 /* WebViewController.h */,
+				279AA2F31747554100E40E46 /* WebViewController.m */,
+			);
+			name = Controllers;
+			sourceTree = "<group>";
+		};
+		279AA2FE1747573D00E40E46 /* utilities */ = {
+			isa = PBXGroup;
+			children = (
 				279AA2E71747554100E40E46 /* Credits.rtf */,
 				279AA2E91747554100E40E46 /* InfoPlist.strings */,
 				279AA2EB1747554100E40E46 /* MainMenu.xib */,
 				279AA2ED1747554100E40E46 /* MacBrowser-Info.plist */,
 				279AA2EE1747554100E40E46 /* MacBrowser-Prefix.pch */,
-				279AA2EF1747554100E40E46 /* main.m */,
+			);
+			name = utilities;
+			sourceTree = "<group>";
+		};
+		279AA2FF1747577200E40E46 /* Classes */ = {
+			isa = PBXGroup;
+			children = (
 				279AA2F01747554100E40E46 /* NSFlippedView.h */,
 				279AA2F11747554100E40E46 /* NSFlippedView.m */,
-				279AA2F21747554100E40E46 /* WebViewController.h */,
-				279AA2F31747554100E40E46 /* WebViewController.m */,
 			);
-			path = MacBrowser;
+			name = Classes;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

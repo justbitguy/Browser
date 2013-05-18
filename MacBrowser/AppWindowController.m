@@ -11,6 +11,8 @@
 #import "WebKit/WebFrame.h"
 #import "NSFlippedView.h"
 
+#import "WebViewController.h"
+
 #define BTN_WIDTH 30
 #define BTN_HEIGHT 30
 
@@ -28,12 +30,14 @@
 @end
 
 @implementation AppWindowController
+@synthesize webViewController = m_webViewController;
+
 
 - (id)initWithWindow:(NSWindow *)window
 {
     self = [super initWithWindow:window];
     if (self) {
-
+        [self loadWindow];
     }
     
     return self;
@@ -52,7 +56,7 @@
     NSUInteger uiStyle = NSTitledWindowMask | NSResizableWindowMask | NSClosableWindowMask;
     NSBackingStoreType backingStoreStyle = NSBackingStoreBuffered;
     self.window = [[NSWindow alloc] initWithContentRect:rc styleMask:uiStyle backing:backingStoreStyle defer:NO];
-    [self.window setTitle:@"window!"];
+    [self.window setTitle:@"Just Browse All"];
     [self.window makeKeyAndOrderFront:self.window];
     [self.window makeMainWindow];
     
@@ -72,16 +76,16 @@
     [self.window setContentView:view];
 
     // back button.
-    NSButton* button = [[[NSButton alloc] initWithFrame:NSMakeRect(0, 0 , BTN_WIDTH, BTN_HEIGHT)] autorelease];
-    [button setTitle:@"<"];
-    [button setTarget:self];
-    [button setAction:@selector(back)];
+    m_backButton = [[[NSButton alloc] initWithFrame:NSMakeRect(0, 0 , BTN_WIDTH, BTN_HEIGHT)] autorelease];
+    [m_backButton setTitle:@"<"];
+    [m_backButton setTarget:self];
+    [m_backButton setAction:@selector(back)];
     
     // forward button.
-    NSButton* button2 = [[[NSButton alloc] initWithFrame:NSMakeRect(BTN2_X, 0,  BTN_WIDTH, BTN_HEIGHT)] autorelease];
-    [button2 setTitle:@">"];
-    [button2 setTarget:self];
-    [button2 setAction:@selector(forward)];
+    m_forwardButton = [[[NSButton alloc] initWithFrame:NSMakeRect(BTN2_X, 0,  BTN_WIDTH, BTN_HEIGHT)] autorelease];
+    [m_forwardButton setTitle:@">"];
+    [m_forwardButton setTarget:self];
+    [m_forwardButton setAction:@selector(forward)];
     
     // refresh button.
     NSButton* button3 = [[[NSButton alloc] initWithFrame:NSMakeRect(BTN3_X, 0, BTN_WIDTH, BTN_HEIGHT)] autorelease];
@@ -98,19 +102,23 @@
     // url field.
     CGFloat width = self.window.frame.size.width - BTN_WIDTH*4;
     m_urlField = [[NSTextField alloc] initWithFrame:NSMakeRect(URLField_X, 0, width, URLField_HEIGHT)];
+    [m_urlField setFont:[NSFont userFontOfSize:18.0]];
     
     // webivew.
     CGFloat windowWidth = self.window.frame.size.width;
     CGFloat windowHeight = self.window.frame.size.height;
     
-    m_webView = [[WebView alloc] initWithFrame:NSMakeRect(0, BTN_HEIGHT, windowWidth, windowHeight - BTN_HEIGHT)];
+    NSRect frameRect = NSMakeRect(0, BTN_HEIGHT, windowWidth, windowHeight - BTN_HEIGHT);
+    m_webViewController = [[WebViewController alloc] initWithFrame:frameRect];
+    WebView* webView = [m_webViewController webView];
+    m_webViewController.delegate = self;
     
-    [self.window.contentView addSubview:button];
-    [self.window.contentView addSubview:button2];
+    [self.window.contentView addSubview:m_backButton];
+    [self.window.contentView addSubview:m_forwardButton];
     [self.window.contentView addSubview:button3];
     [self.window.contentView addSubview:button4];
     [self.window.contentView addSubview:m_urlField];
-    [self.window.contentView addSubview:m_webView];
+    [self.window.contentView addSubview:webView];
 }
 
 - (void)windowDidLoad
@@ -120,31 +128,40 @@
 
 - (void)dealloc
 {
+    [m_backButton release];
+    [m_forwardButton release];
+    [m_urlField release];
+    m_webViewController.delegate = nil;
+    [m_webViewController release];
+    
     [super dealloc];
 }
 
 
 #pragma mark -
-#pragma mark callback
+#pragma mark button callback
 - (void)back
 {
-    
+    if (self.webViewController)
+        [self.webViewController back];
 }
 
 - (void)forward
 {
-
+    if (self.webViewController)
+        [self.webViewController forward];
 }
 
 - (void)refresh
 {
-
+    if (self.webViewController)
+        [self.webViewController refresh];
 }
 
 - (void)go
 {
-    NSString* urlString = [NSString stringWithString:m_urlField.stringValue];
-    [[m_webView mainFrame] loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:urlString]]];
+    NSString* url = m_urlField.stringValue;
+    [self.webViewController load:url];
 }
 
 #pragma mark - 
@@ -159,4 +176,23 @@
     [m_webView setFrameSize:NSMakeSize(winWidth, winHeight)];
     
 }
+
+#pragma mark - 
+#pragma mark ViewControllerDelegate
+- (void)setCanGoBack:(BOOL)back canGoForward:(BOOL)forward
+{
+    [m_backButton setEnabled:back];
+    [m_forwardButton setEnabled:forward];
+}
+
+- (void)updateURL:(NSString*)url
+{
+    [m_urlField setStringValue:url];
+}
+
+- (void)updateTitle:(NSString*)title
+{
+    [self.window setTitle:title];
+}
+
 @end
