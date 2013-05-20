@@ -7,17 +7,22 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "WebViewController.h"
 
 @class  WebView;
 @class WebViewController;
 @protocol ViewControllerDelegate;
 
-@interface AppWindowController : NSWindowController <NSWindowDelegate, ViewControllerDelegate>
+@interface AppWindowController : NSWindowController <NSWindowDelegate, \
+                                 ViewControllerDelegate, NSTextDelegate, \
+                                 NSControlTextEditingDelegate, NSToolbarDelegate, \
+                                 NSToolbarDelegate>
 {
-    NSButton* m_backButton;
-    NSButton* m_forwardButton;
     NSTextField* m_urlField;
     WebViewController* m_webViewController;
+    
+    BOOL m_canGoBack;
+    BOOL m_canGoForward;
 }
 
 @property (nonatomic, readonly) WebViewController* webViewController;

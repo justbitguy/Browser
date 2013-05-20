@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2742A410174A800100CE9309 /* back.png in Resources */ = {isa = PBXBuildFile; fileRef = 2742A40C174A800100CE9309 /* back.png */; };
+		2742A412174A800100CE9309 /* load.png in Resources */ = {isa = PBXBuildFile; fileRef = 2742A40E174A800100CE9309 /* load.png */; };
+		2742A413174A800100CE9309 /* forward.png in Resources */ = {isa = PBXBuildFile; fileRef = 2742A40F174A800100CE9309 /* forward.png */; };
+		2742A415174A8EBB00CE9309 /* refresh.png in Resources */ = {isa = PBXBuildFile; fileRef = 2742A414174A8EBB00CE9309 /* refresh.png */; };
 		274D579A170B1E23004302A0 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 274D5799170B1E23004302A0 /* Cocoa.framework */; };
 		279AA2F41747554100E40E46 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 279AA2E41747554100E40E46 /* AppDelegate.m */; };
 		279AA2F51747554100E40E46 /* AppWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 279AA2E61747554100E40E46 /* AppWindowController.m */; };
@@ -21,6 +25,10 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		2742A40C174A800100CE9309 /* back.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = back.png; sourceTree = "<group>"; };
+		2742A40E174A800100CE9309 /* load.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = load.png; sourceTree = "<group>"; };
+		2742A40F174A800100CE9309 /* forward.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = forward.png; sourceTree = "<group>"; };
+		2742A414174A8EBB00CE9309 /* refresh.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = refresh.png; sourceTree = "<group>"; };
 		274D5796170B1E23004302A0 /* MacBrowser.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MacBrowser.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		274D5799170B1E23004302A0 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		274D579C170B1E23004302A0 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -61,6 +69,7 @@
 			children = (
 				279AA2E21747554100E40E46 /* MacBrowser */,
 				274D5798170B1E23004302A0 /* Frameworks */,
+				279AA30117479ABB00E40E46 /* res */,
 				274D5797170B1E23004302A0 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -138,6 +147,18 @@
 			name = Classes;
 			sourceTree = "<group>";
 		};
+		279AA30117479ABB00E40E46 /* res */ = {
+			isa = PBXGroup;
+			children = (
+				2742A414174A8EBB00CE9309 /* refresh.png */,
+				2742A40C174A800100CE9309 /* back.png */,
+				2742A40E174A800100CE9309 /* load.png */,
+				2742A40F174A800100CE9309 /* forward.png */,
+			);
+			name = res;
+			path = MacBrowser/res;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -193,6 +214,10 @@
 				279AA2F71747554100E40E46 /* InfoPlist.strings in Resources */,
 				279AA2F81747554100E40E46 /* MainMenu.xib in Resources */,
 				279AA2F91747554100E40E46 /* MacBrowser-Info.plist in Resources */,
+				2742A410174A800100CE9309 /* back.png in Resources */,
+				2742A412174A800100CE9309 /* load.png in Resources */,
+				2742A413174A800100CE9309 /* forward.png in Resources */,
+				2742A415174A8EBB00CE9309 /* refresh.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
