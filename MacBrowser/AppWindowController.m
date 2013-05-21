@@ -35,6 +35,8 @@ static NSString*	RefreshToolbarItemIdentifier 	= @"Refresh Toolbar Item Identifi
 static NSString*	URLToolbarItemIdentifier 	    = @"URL Toolbar Item Identifier";
 static NSString*	LoadToolbarItemIdentifier 	    = @"Load Toolbar Item Identifier";
 
+static NSString*    DefaultURL =@"http://www.163.com";
+
 @interface AppWindowController ()
 
 @end
@@ -86,11 +88,14 @@ static NSString*	LoadToolbarItemIdentifier 	    = @"Load Toolbar Item Identifier
 - (void) setupViewController
 {
     // webivew.
+    
     CGFloat windowWidth = self.window.frame.size.width;
     CGFloat windowHeight = self.window.frame.size.height;
     
-    NSRect frameRect = NSMakeRect(0, BTN_HEIGHT, windowWidth, windowHeight - BTN_HEIGHT);
-    m_webViewController = [[WebViewController alloc] initWithFrame:frameRect];
+    NSScrollView* scrollView = [[NSScrollView alloc] initWithFrame:NSMakeRect(0, 0, windowWidth, windowHeight)];
+    [self.window setContentView:scrollView];
+    
+    m_webViewController = [[WebViewController alloc] initWithFrame:NSMakeRect(0, 0, windowWidth, windowHeight - 100)];
     WebView* webView = [m_webViewController webView];
     [self.window.contentView addSubview:webView];
     m_webViewController.delegate = self;
@@ -169,12 +174,11 @@ static NSString*	LoadToolbarItemIdentifier 	    = @"Load Toolbar Item Identifier
 #pragma mark NSWindowDelegate
 - (void)windowDidResize:(NSNotification *)notification;
 {
-    CGSize winSize = self.window.frame.size;
-    CGFloat winWidth = winSize.width;
-    CGFloat winHeight = winSize.height;
+    CGSize contentSize = [self.window.contentView frame].size;
+    CGFloat contentWidth = contentSize.width;
+    CGFloat contentHeight = contentSize.height;
     
-    [m_urlField setFrameSize:NSMakeSize(winWidth - 4*BTN_WIDTH, BTN_HEIGHT)];
-    [self.webViewController setWebViewFrame:NSMakeRect(0, BTN_HEIGHT, winWidth, winHeight)];
+    [self.webViewController setWebViewFrame:NSMakeRect(0, 0, contentWidth, contentHeight)];
 }
 
 #pragma mark - 
@@ -270,7 +274,7 @@ static NSString*	LoadToolbarItemIdentifier 	    = @"Load Toolbar Item Identifier
         m_urlField = [[NSTextField alloc] initWithFrame:NSMakeRect(URLField_X, 0, width, URLField_HEIGHT)];
         [m_urlField setFont:[NSFont userFontOfSize:18.0]];
         [m_urlField setTextColor:[NSColor colorWithSRGBRed:30.0/255 green:50.0/255 blue:80.0/255 alpha:1.0]];
-        [m_urlField setStringValue:@"http://www.baidu.com"];
+        [m_urlField setStringValue:DefaultURL];
 
         [toolbarItem setView:m_urlField];
         [toolbarItem setMinSize:NSMakeSize(30, NSHeight([m_urlField frame]))];
