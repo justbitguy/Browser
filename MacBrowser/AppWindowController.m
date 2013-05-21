@@ -24,6 +24,10 @@
 #define BTN4_X (BTN3_X)+(BTN_WIDTH)
 #define URLField_X (BTN4_X)+(BTN_WIDTH)
 
+static NSString*    IconBack    = @"arrow_left";
+static NSString*    IconForward = @"arrow_right";
+static NSString*    IconRefresh = @"refresh_red";
+
 static NSString* 	MacBrowserToolbarIdentifier     = @"MacBrowser Toolbar Identifier";
 static NSString*	BackToolbarItemIdentifier 	    = @"Back Toolbar Item Identifier";
 static NSString*	ForwardToolbarItemIdentifier 	= @"Forward Toolbar Item Identifier";
@@ -76,7 +80,7 @@ static NSString*	LoadToolbarItemIdentifier 	    = @"Load Toolbar Item Identifier
     
     [self setupViewController];
     [self setupToolbar];
-    [self go:self];
+    [self go];
 }
 
 - (void) setupViewController
@@ -147,8 +151,18 @@ static NSString*	LoadToolbarItemIdentifier 	    = @"Load Toolbar Item Identifier
 
 - (void)go:(id)sender
 {
+    [self go];
+}
+
+- (void)go
+{
     NSString* url = m_urlField.stringValue;
     [self.webViewController load:url];
+}
+
+- (void)url:(id)sender
+{
+    // todo.
 }
 
 #pragma mark - 
@@ -167,7 +181,11 @@ static NSString*	LoadToolbarItemIdentifier 	    = @"Load Toolbar Item Identifier
 #pragma mark NSTextFieldDelegate
 - (void)textDidEndEditing:(NSNotification *)aNotification
 {
-    
+   id object =  [[aNotification userInfo] objectForKey:@"NSTextMovement"];
+   if ([object intValue] == NSReturnTextMovement)
+   {
+       [self go];
+   }
 }
 
 #pragma mark -
@@ -188,7 +206,7 @@ static NSString*	LoadToolbarItemIdentifier 	    = @"Load Toolbar Item Identifier
         // Set up a reasonable tooltip, and image   Note, these aren't localized, but you will likely want to localize many of the item's properties
         [toolbarItem setToolTip: @"Go Back"];
         
-        NSString* imageName = [[NSBundle mainBundle] pathForResource:@"back" ofType:@"png"];
+        NSString* imageName = [[NSBundle mainBundle] pathForResource:IconBack ofType:@"png"];
         NSImage* imageObj = [[[NSImage alloc] initWithContentsOfFile:imageName] autorelease];
         [toolbarItem setImage: imageObj];
         
@@ -208,7 +226,7 @@ static NSString*	LoadToolbarItemIdentifier 	    = @"Load Toolbar Item Identifier
         // Set up a reasonable tooltip, and image   Note, these aren't localized, but you will likely want to localize many of the item's properties
         [toolbarItem setToolTip: @"Go Forward"];
         
-        NSString* imageName = [[NSBundle mainBundle] pathForResource:@"forward" ofType:@"png"];
+        NSString* imageName = [[NSBundle mainBundle] pathForResource:IconForward ofType:@"png"];
         NSImage* imageObj = [[[NSImage alloc] initWithContentsOfFile:imageName] autorelease];
         [toolbarItem setImage: imageObj];
         
@@ -228,7 +246,7 @@ static NSString*	LoadToolbarItemIdentifier 	    = @"Load Toolbar Item Identifier
         // Set up a reasonable tooltip, and image   Note, these aren't localized, but you will likely want to localize many of the item's properties
         [toolbarItem setToolTip: @"Refresh"];
         
-        NSString* imageName = [[NSBundle mainBundle] pathForResource:@"refresh" ofType:@"png"];
+        NSString* imageName = [[NSBundle mainBundle] pathForResource:IconRefresh ofType:@"png"];
         NSImage* imageObj = [[[NSImage alloc] initWithContentsOfFile:imageName] autorelease];
         [toolbarItem setImage: imageObj];
         
