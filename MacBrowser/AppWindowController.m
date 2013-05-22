@@ -9,9 +9,9 @@
 #import "AppWindowController.h"
 #import "WebKit/WebView.h"
 #import "WebKit/WebFrame.h"
-#import "NSFlippedView.h"
 
 #import "WebViewController.h"
+#import "ToolbarItemView.h"
 
 #define BTN_WIDTH 30
 #define BTN_HEIGHT 30
@@ -26,7 +26,7 @@
 
 static NSString*    IconBack    = @"arrow_left";
 static NSString*    IconForward = @"arrow_right";
-static NSString*    IconRefresh = @"refresh_red";
+static NSString*    IconRefresh = @"refresh";
 
 static NSString* 	MacBrowserToolbarIdentifier     = @"MacBrowser Toolbar Identifier";
 static NSString*	BackToolbarItemIdentifier 	    = @"Back Toolbar Item Identifier";
@@ -192,6 +192,16 @@ static NSString*    DefaultURL =@"http://www.163.com";
    }
 }
 
+- (void)mouseDown:(NSEvent *)theEvent
+{
+    [super mouseDown:theEvent];
+}
+
+- (void)mouseUp:(NSEvent *)theEvent
+{
+    [super mouseUp:theEvent];
+}
+
 #pragma mark -
 #pragma mark NSToolbarDlegate
 - (NSToolbarItem *) toolbar: (NSToolbar *)toolbar itemForItemIdentifier: (NSString *) itemIdent willBeInsertedIntoToolbar:(BOOL) willBeInserted {
@@ -210,9 +220,17 @@ static NSString*    DefaultURL =@"http://www.163.com";
         // Set up a reasonable tooltip, and image   Note, these aren't localized, but you will likely want to localize many of the item's properties
         [toolbarItem setToolTip: @"Go Back"];
         
-        NSString* imageName = [[NSBundle mainBundle] pathForResource:IconBack ofType:@"png"];
-        NSImage* imageObj = [[[NSImage alloc] initWithContentsOfFile:imageName] autorelease];
-        [toolbarItem setImage: imageObj];
+//        NSString* imageName = [[NSBundle mainBundle] pathForResource:IconBack ofType:@"png"];
+//        NSImage* imageObj = [[[NSImage alloc] initWithContentsOfFile:imageName] autorelease];
+//        [toolbarItem setImage: imageObj];
+
+        
+        ToolbarItemView * itemView = [[[ToolbarItemView alloc] initWithFrame:NSMakeRect(0, 0, 30, 30)] autorelease];
+        [toolbarItem setView:itemView];
+//        [toolbarItem setImage:imageObj];
+        
+        [toolbarItem setMinSize:NSMakeSize(30, 30)];
+        [toolbarItem setMaxSize:NSMakeSize(30, 30)];
         
         // Tell the item what message to send when it is clicked
         [toolbarItem setTarget: self];
@@ -273,7 +291,7 @@ static NSString*    DefaultURL =@"http://www.163.com";
         CGFloat width = self.window.frame.size.width - BTN_WIDTH*4;
         m_urlField = [[NSTextField alloc] initWithFrame:NSMakeRect(URLField_X, 0, width, URLField_HEIGHT)];
         [m_urlField setFont:[NSFont userFontOfSize:18.0]];
-        [m_urlField setTextColor:[NSColor colorWithSRGBRed:30.0/255 green:50.0/255 blue:80.0/255 alpha:1.0]];
+        [m_urlField setTextColor:[NSColor colorWithSRGBRed:30.0/255 green:100.0/255 blue:80.0/255 alpha:1.0]];
         [m_urlField setStringValue:DefaultURL];
 
         [toolbarItem setView:m_urlField];

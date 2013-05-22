@@ -17,6 +17,7 @@
 		279AA2FA1747554100E40E46 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 279AA2EF1747554100E40E46 /* main.m */; };
 		279AA2FB1747554100E40E46 /* NSFlippedView.m in Sources */ = {isa = PBXBuildFile; fileRef = 279AA2F11747554100E40E46 /* NSFlippedView.m */; };
 		279AA2FC1747554100E40E46 /* WebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 279AA2F31747554100E40E46 /* WebViewController.m */; };
+		27B73AA7174D109C005DD981 /* ToolbarItemView.m in Sources */ = {isa = PBXBuildFile; fileRef = 27B73AA6174D109C005DD981 /* ToolbarItemView.m */; };
 		27C7BA35173D3DB900F8FB7E /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 27C7BA34173D3DB900F8FB7E /* WebKit.framework */; };
 		27EDD5C5174BAEC700DBBF71 /* arrow_left.png in Resources */ = {isa = PBXBuildFile; fileRef = 27EDD5B6174BAEC700DBBF71 /* arrow_left.png */; };
 		27EDD5C6174BAEC700DBBF71 /* arrow_right.png in Resources */ = {isa = PBXBuildFile; fileRef = 27EDD5B7174BAEC700DBBF71 /* arrow_right.png */; };
@@ -54,6 +55,8 @@
 		279AA2F11747554100E40E46 /* NSFlippedView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSFlippedView.m; sourceTree = "<group>"; };
 		279AA2F21747554100E40E46 /* WebViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebViewController.h; sourceTree = "<group>"; };
 		279AA2F31747554100E40E46 /* WebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebViewController.m; sourceTree = "<group>"; };
+		27B73AA5174D109C005DD981 /* ToolbarItemView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ToolbarItemView.h; sourceTree = "<group>"; };
+		27B73AA6174D109C005DD981 /* ToolbarItemView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ToolbarItemView.m; sourceTree = "<group>"; };
 		27C7BA34173D3DB900F8FB7E /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		27EDD5B6174BAEC700DBBF71 /* arrow_left.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = arrow_left.png; sourceTree = "<group>"; };
 		27EDD5B7174BAEC700DBBF71 /* arrow_right.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = arrow_right.png; sourceTree = "<group>"; };
@@ -142,6 +145,8 @@
 				279AA2E61747554100E40E46 /* AppWindowController.m */,
 				279AA2F21747554100E40E46 /* WebViewController.h */,
 				279AA2F31747554100E40E46 /* WebViewController.m */,
+				27B73AA5174D109C005DD981 /* ToolbarItemView.h */,
+				27B73AA6174D109C005DD981 /* ToolbarItemView.m */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -273,6 +278,7 @@
 				279AA2FA1747554100E40E46 /* main.m in Sources */,
 				279AA2FB1747554100E40E46 /* NSFlippedView.m in Sources */,
 				279AA2FC1747554100E40E46 /* WebViewController.m in Sources */,
+				27B73AA7174D109C005DD981 /* ToolbarItemView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
