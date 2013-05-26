@@ -9,9 +9,13 @@
 #import "AppWindowController.h"
 #import "WebKit/WebView.h"
 #import "WebKit/WebFrame.h"
+#import "WebKit/WebBackForwardList.h"
+#import "WebKit/WebHistoryItem.h"
 
 #import "WebViewController.h"
 #import "ToolbarItemView.h"
+
+#import "DraggableImageAndTextCell.h"
 
 #define BTN_WIDTH 30
 #define BTN_HEIGHT 30
@@ -24,9 +28,9 @@
 #define BTN4_X (BTN3_X)+(BTN_WIDTH)
 #define URLField_X (BTN4_X)+(BTN_WIDTH)
 
-static NSString*    IconBack    = @"arrow_left";
-static NSString*    IconForward = @"arrow_right";
-static NSString*    IconRefresh = @"refresh";
+static NSString*    IconBack    = @"left_red";
+static NSString*    IconForward = @"right_red";
+static NSString*    IconRefresh = @"burn";
 
 static NSString* 	MacBrowserToolbarIdentifier     = @"MacBrowser Toolbar Identifier";
 static NSString*	BackToolbarItemIdentifier 	    = @"Back Toolbar Item Identifier";
@@ -36,6 +40,69 @@ static NSString*	URLToolbarItemIdentifier 	    = @"URL Toolbar Item Identifier";
 static NSString*	LoadToolbarItemIdentifier 	    = @"Load Toolbar Item Identifier";
 
 static NSString*    DefaultURL =@"http://www.163.com";
+
+//
+// interface ToolbarButton
+//
+// A subclass of NSButton that responds to |-setControlSize:| which
+// comes from the toolbar when it changes sizes. Adjust the size
+// of our associated NSToolbarItem when the call comes.
+//
+// Note that |-setControlSize:| is not part of NSView's api, but the
+// toolbar code calls it anyway, without any documentation to that
+// effect.
+//
+@interface ToolbarButton : NSButton
+{
+    NSToolbarItem* mToolbarItem;
+}
+-(id)initWithFrame:(NSRect)inFrame item:(NSToolbarItem*)inItem;
+@end
+
+@implementation ToolbarButton
+
+-(id)initWithFrame:(NSRect)inFrame item:(NSToolbarItem*)inItem
+{
+    if ((self = [super initWithFrame:inFrame])) {
+        mToolbarItem = inItem;
+    }
+    return self;
+}
+
+//
+// -setControlSize:
+//
+// Called by the toolbar when the toolbar changes icon size. Adjust our
+// toolbar item so that it can adjust larger or smaller.
+//
+- (void)setControlSize:(NSControlSize)size
+{
+    NSSize s;
+    if (size == NSRegularControlSize) {
+        s = NSMakeSize(32., 32.);
+        [mToolbarItem setMinSize:s];
+        [mToolbarItem setMaxSize:s];
+    }
+    else {
+        s = NSMakeSize(24., 24.);
+        [mToolbarItem setMinSize:s];
+        [mToolbarItem setMaxSize:s];
+    }
+    [[self image] setSize:s];
+}
+
+//
+// -controlSize
+//
+// The toolbar assumes this implemented whenever |-setControlSize:| is implemented,
+// though I'm not sure why.
+//
+- (NSControlSize)controlSize
+{
+    return [[self cell] controlSize];
+}
+
+@end
 
 @interface AppWindowController ()
 
@@ -133,6 +200,29 @@ static NSString*    DefaultURL =@"http://www.163.com";
     [super dealloc];
 }
 
+#pragma mark -
+
+// -createToolbarPopupButton:
+//
+// Create a new instance of one of our special click-hold popup buttons that knows
+// how to display a menu on click-hold. Associate it with the toolbar item |inItem|.
+- (NSButton*)createToolbarPopupButton:(NSToolbarItem*)inItem
+{
+    NSRect frame = NSMakeRect(0.,0.,32.,32.);
+    NSButton* button = [[[ToolbarButton alloc] initWithFrame:frame item:inItem] autorelease];
+    if (button) {
+        DraggableImageAndTextCell* newCell = [[[DraggableImageAndTextCell alloc] initTextCell:@""] autorelease];
+        [newCell setDraggable:YES];
+        [newCell setClickHoldTimeout:0.45];
+        [button setCell:newCell];
+        
+        [button setBezelStyle:NSRegularSquareBezelStyle];
+        [button setButtonType:NSMomentaryChangeButton];
+        [button setImagePosition:NSImageOnly];
+        [button setBordered:NO];
+    }
+    return button;
+}
 
 #pragma mark -
 #pragma mark button callback
@@ -170,6 +260,32 @@ static NSString*    DefaultURL =@"http://www.163.com";
     // todo.
 }
 
+//
+// -backMenu:
+//
+// Create a menu off the back button (the sender) that contains the session history
+// from the current position backward to the first item in the session history.
+//
+- (void)backMenu:(id)inSender
+{
+    NSMenu* popupMenu = [[[NSMenu alloc] init] autorelease];
+    [popupMenu addItemWithTitle:@"" action:NULL keyEquivalent:@""];  // dummy first item
+
+    WebBackForwardList* backforward = [m_webViewController.webView backForwardList];
+    
+    int backCount = [backforward backListCount];
+    for (int i = 0; i > - backCount; --i)
+    {
+       WebHistoryItem* item = [backforward itemAtIndex:i];
+       [popupMenu addItemWithTitle:[item title] action:nil keyEquivalent:[item URLString]];
+    }
+    
+    // use a temporary NSPopUpButtonCell to display the menu.
+    NSPopUpButtonCell *popupCell = [[[NSPopUpButtonCell alloc] initTextCell:@"" pullsDown:YES] autorelease];
+    [popupCell setMenu: popupMenu];
+    [popupCell trackMouse:[NSApp currentEvent] inRect:[inSender bounds] ofView:inSender untilMouseUp:YES];
+}
+
 #pragma mark - 
 #pragma mark NSWindowDelegate
 - (void)windowDidResize:(NSNotification *)notification;
@@ -192,15 +308,6 @@ static NSString*    DefaultURL =@"http://www.163.com";
    }
 }
 
-- (void)mouseDown:(NSEvent *)theEvent
-{
-    [super mouseDown:theEvent];
-}
-
-- (void)mouseUp:(NSEvent *)theEvent
-{
-    [super mouseUp:theEvent];
-}
 
 #pragma mark -
 #pragma mark NSToolbarDlegate
@@ -223,18 +330,35 @@ static NSString*    DefaultURL =@"http://www.163.com";
 //        NSString* imageName = [[NSBundle mainBundle] pathForResource:IconBack ofType:@"png"];
 //        NSImage* imageObj = [[[NSImage alloc] initWithContentsOfFile:imageName] autorelease];
 //        [toolbarItem setImage: imageObj];
-
+//        
+//        [toolbarItem setMinSize:NSMakeSize(30, 30)];
+//        [toolbarItem setMaxSize:NSMakeSize(30, 30)];
+//        
+//        // Tell the item what message to send when it is clicked
+//        [toolbarItem setTarget: self];
+//        [toolbarItem setAction: @selector(back:)];
+//        
         
-        ToolbarItemView * itemView = [[[ToolbarItemView alloc] initWithFrame:NSMakeRect(0, 0, 30, 30)] autorelease];
-        [toolbarItem setView:itemView];
-//        [toolbarItem setImage:imageObj];
+        /////////
         
-        [toolbarItem setMinSize:NSMakeSize(30, 30)];
-        [toolbarItem setMaxSize:NSMakeSize(30, 30)];
+        NSButton* button = [self createToolbarPopupButton:toolbarItem];
+        [toolbarItem setLabel:NSLocalizedString(@"Back", nil)];
+        [toolbarItem setPaletteLabel:NSLocalizedString(@"Go Back", nil)];
         
-        // Tell the item what message to send when it is clicked
-        [toolbarItem setTarget: self];
-        [toolbarItem setAction: @selector(back:)];
+        NSSize size = NSMakeSize(32., 32.);
+        NSImage* icon = [NSImage imageNamed:IconBack];
+        [icon setScalesWhenResized:YES];
+        [button setImage:icon];
+        
+        [toolbarItem setView:button];
+        [toolbarItem setMinSize:size];
+        [toolbarItem setMaxSize:size];
+        
+        [button setTarget:self];
+        [button setAction:@selector(back:)];
+        [toolbarItem setTarget:self];
+        [toolbarItem setAction:@selector(back:)];      // so validateToolbarItem: works correctly
+        [[button cell] setClickHoldAction:@selector(backMenu:)];
     }
     else if ([itemIdent isEqual: ForwardToolbarItemIdentifier])
     {
@@ -248,8 +372,7 @@ static NSString*    DefaultURL =@"http://www.163.com";
         // Set up a reasonable tooltip, and image   Note, these aren't localized, but you will likely want to localize many of the item's properties
         [toolbarItem setToolTip: @"Go Forward"];
         
-        NSString* imageName = [[NSBundle mainBundle] pathForResource:IconForward ofType:@"png"];
-        NSImage* imageObj = [[[NSImage alloc] initWithContentsOfFile:imageName] autorelease];
+        NSImage* imageObj = [NSImage imageNamed:IconForward];
         [toolbarItem setImage: imageObj];
         
         // Tell the item what message to send when it is clicked
@@ -339,7 +462,7 @@ static NSString*    DefaultURL =@"http://www.163.com";
                                       ForwardToolbarItemIdentifier,
                                       RefreshToolbarItemIdentifier,
                                       URLToolbarItemIdentifier,
-                                      LoadToolbarItemIdentifier,
+//                                      LoadToolbarItemIdentifier,
                                       nil];
 }
 
@@ -350,7 +473,7 @@ static NSString*    DefaultURL =@"http://www.163.com";
     return [NSArray arrayWithObjects: 	BackToolbarItemIdentifier,
                                         ForwardToolbarItemIdentifier,
                                         RefreshToolbarItemIdentifier,
-                                        LoadToolbarItemIdentifier,
+//                                        LoadToolbarItemIdentifier,
                                         NSToolbarPrintItemIdentifier,
                                         NSToolbarShowColorsItemIdentifier,
                                         NSToolbarShowFontsItemIdentifier,
