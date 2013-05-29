@@ -41,6 +41,45 @@ static NSString*	LoadToolbarItemIdentifier 	    = @"Load Toolbar Item Identifier
 
 static NSString*    DefaultURL =@"http://www.163.com";
 
+
+@interface ToolbarViewItem : NSToolbarItem
+{
+}
+@end
+
+
+@implementation ToolbarViewItem
+
+//
+// -validate
+//
+// Override default behavior (which does nothing at all for a view item) to
+// ask the target to handle it. The target must perform all the appropriate
+// enabling/disabling within |-validateToolbarItem:| because we can't know
+// all the details. The return value is ignored.
+//
+- (void)validate
+{
+    id target = [self target];
+    if ([target respondsToSelector:@selector(validateToolbarItem:)])
+        [target validateToolbarItem:self];
+}
+
+//
+// -setEnabled:
+//
+// Make sure that the menu form, which is used for the text-only view,
+// is enabled and disabled with the rest of the toolbar item.
+//
+- (void)setEnabled:(BOOL)enabled
+{
+    [super setEnabled:enabled];
+    [[self menuFormRepresentation] setEnabled:enabled];
+}
+
+@end
+
+
 //
 // interface ToolbarButton
 //
@@ -260,6 +299,13 @@ static NSString*    DefaultURL =@"http://www.163.com";
     // todo.
 }
 
+- (void)backItemAction:(id)sender
+{
+    NSMenuItem* item = (NSMenuItem*)sender;
+    NSString* url = [item keyEquivalent];
+    // todo...
+}
+
 //
 // -backMenu:
 //
@@ -274,10 +320,11 @@ static NSString*    DefaultURL =@"http://www.163.com";
     WebBackForwardList* backforward = [m_webViewController.webView backForwardList];
     
     int backCount = [backforward backListCount];
-    for (int i = 0; i > - backCount; --i)
+    
+    for (int i = -1; i >= - backCount; --i)
     {
        WebHistoryItem* item = [backforward itemAtIndex:i];
-       [popupMenu addItemWithTitle:[item title] action:nil keyEquivalent:[item URLString]];
+       [popupMenu addItemWithTitle:[item title] action:@selector(backItemAction:) keyEquivalent:[item URLString]];
     }
     
     // use a temporary NSPopUpButtonCell to display the menu.
@@ -316,49 +363,42 @@ static NSString*    DefaultURL =@"http://www.163.com";
     // The toolbar will use this method to obtain toolbar items that can be displayed in the customization sheet, or in the toolbar itself
     NSToolbarItem *toolbarItem = nil;
     
-    if ([itemIdent isEqual: BackToolbarItemIdentifier])
+    if ([itemIdent isEqual: BackToolbarItemIdentifier] && willBeInserted)
     {
-        toolbarItem = [[[NSToolbarItem alloc] initWithItemIdentifier: itemIdent] autorelease];
+        toolbarItem = [[[ToolbarViewItem alloc] initWithItemIdentifier: itemIdent] autorelease];
         
         // Set the text label to be displayed in the toolbar and customization palette
         [toolbarItem setLabel: @"Back"];
         [toolbarItem setPaletteLabel: @"Back"];
-        
-        // Set up a reasonable tooltip, and image   Note, these aren't localized, but you will likely want to localize many of the item's properties
         [toolbarItem setToolTip: @"Go Back"];
-        
-//        NSString* imageName = [[NSBundle mainBundle] pathForResource:IconBack ofType:@"png"];
-//        NSImage* imageObj = [[[NSImage alloc] initWithContentsOfFile:imageName] autorelease];
-//        [toolbarItem setImage: imageObj];
-//        
-//        [toolbarItem setMinSize:NSMakeSize(30, 30)];
-//        [toolbarItem setMaxSize:NSMakeSize(30, 30)];
-//        
-//        // Tell the item what message to send when it is clicked
-//        [toolbarItem setTarget: self];
-//        [toolbarItem setAction: @selector(back:)];
-//        
-        
-        /////////
-        
-        NSButton* button = [self createToolbarPopupButton:toolbarItem];
-        [toolbarItem setLabel:NSLocalizedString(@"Back", nil)];
-        [toolbarItem setPaletteLabel:NSLocalizedString(@"Go Back", nil)];
         
         NSSize size = NSMakeSize(32., 32.);
         NSImage* icon = [NSImage imageNamed:IconBack];
         [icon setScalesWhenResized:YES];
+        NSButton* button = [[self createToolbarPopupButton:toolbarItem] autorelease];
         [button setImage:icon];
+        [button setTarget:self];
+        [button setAction:@selector(back:)];
+        [[button cell] setClickHoldAction:@selector(backMenu:)];
         
         [toolbarItem setView:button];
         [toolbarItem setMinSize:size];
         [toolbarItem setMaxSize:size];
-        
-        [button setTarget:self];
-        [button setAction:@selector(back:)];
         [toolbarItem setTarget:self];
         [toolbarItem setAction:@selector(back:)];      // so validateToolbarItem: works correctly
-        [[button cell] setClickHoldAction:@selector(backMenu:)];
+        
+        NSMenuItem *menuFormRep = [[[NSMenuItem alloc] init] autorelease];
+        [menuFormRep setTarget:self];
+        [menuFormRep setAction:@selector(back:)];
+        [menuFormRep setTitle:[toolbarItem label]];
+        
+        [toolbarItem setMenuFormRepresentation:menuFormRep];
+    }
+    else if ([itemIdent isEqual:BackToolbarItemIdentifier])
+    {
+        [toolbarItem setLabel:NSLocalizedString(@"Back", nil)];
+        [toolbarItem setPaletteLabel:NSLocalizedString(@"Go Back", nil)];
+        [toolbarItem setImage:[NSImage imageNamed:IconBack]];
     }
     else if ([itemIdent isEqual: ForwardToolbarItemIdentifier])
     {
@@ -462,7 +502,6 @@ static NSString*    DefaultURL =@"http://www.163.com";
                                       ForwardToolbarItemIdentifier,
                                       RefreshToolbarItemIdentifier,
                                       URLToolbarItemIdentifier,
-//                                      LoadToolbarItemIdentifier,
                                       nil];
 }
 
@@ -473,7 +512,6 @@ static NSString*    DefaultURL =@"http://www.163.com";
     return [NSArray arrayWithObjects: 	BackToolbarItemIdentifier,
                                         ForwardToolbarItemIdentifier,
                                         RefreshToolbarItemIdentifier,
-//                                        LoadToolbarItemIdentifier,
                                         NSToolbarPrintItemIdentifier,
                                         NSToolbarShowColorsItemIdentifier,
                                         NSToolbarShowFontsItemIdentifier,
@@ -507,9 +545,12 @@ static NSString*    DefaultURL =@"http://www.163.com";
 - (BOOL) validateToolbarItem: (NSToolbarItem *) toolbarItem {
     // Optional method:  This message is sent to us since we are the target of some toolbar item actions
     // (for example:  of the save items action)
+    
     BOOL enable = NO;
     if ([[toolbarItem itemIdentifier] isEqual: BackToolbarItemIdentifier]) {
         enable = m_canGoBack;
+        [toolbarItem setEnabled:enable];
+
     } else if ([[toolbarItem itemIdentifier] isEqual: ForwardToolbarItemIdentifier]) {
         enable = m_canGoForward;
     } else if ([[toolbarItem itemIdentifier] isEqual: RefreshToolbarItemIdentifier]){
