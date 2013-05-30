@@ -30,7 +30,7 @@
 
 static NSString*    IconBack    = @"left_red";
 static NSString*    IconForward = @"right_red";
-static NSString*    IconRefresh = @"burn";
+static NSString*    IconRefresh = @"view-refresh";
 
 static NSString* 	MacBrowserToolbarIdentifier     = @"MacBrowser Toolbar Identifier";
 static NSString*	BackToolbarItemIdentifier 	    = @"Back Toolbar Item Identifier";
@@ -303,7 +303,44 @@ static NSString*    DefaultURL =@"http://www.163.com";
 {
     NSMenuItem* item = (NSMenuItem*)sender;
     NSString* url = [item keyEquivalent];
-    // todo...
+
+    WebBackForwardList* backforward = [m_webViewController.webView backForwardList];
+    
+    int backCount = [backforward backListCount];
+    
+    // find a right WebHistoryItem, it's not a best way.
+    for (int i = -1; i >= - backCount; --i)
+    {
+        WebHistoryItem* item = [backforward itemAtIndex:i];
+        if ([[item URLString] isEqual:url])
+        {
+            [self.webViewController.webView goToBackForwardItem:item];
+            return;
+        }
+    }
+
+}
+
+- (void)forwardItemAction:(id)sender
+{
+    NSMenuItem* item = (NSMenuItem*)sender;
+    NSString* url = [item keyEquivalent];
+    
+    WebBackForwardList* backforward = [m_webViewController.webView backForwardList];
+    
+    int forwardCount = [backforward forwardListCount];
+    
+    // find a right WebHistoryItem, it's not a best way.
+    for (int i = 1; i <= forwardCount; ++i)
+    {
+        WebHistoryItem* item = [backforward itemAtIndex:i];
+        if ([[item URLString] isEqual:url])
+        {
+            [self.webViewController.webView goToBackForwardItem:item];
+            return;
+        }
+    }
+    
 }
 
 //
@@ -332,6 +369,28 @@ static NSString*    DefaultURL =@"http://www.163.com";
     [popupCell setMenu: popupMenu];
     [popupCell trackMouse:[NSApp currentEvent] inRect:[inSender bounds] ofView:inSender untilMouseUp:YES];
 }
+
+- (void)forwardMenu:(id)inSender
+{
+    NSMenu* popupMenu = [[[NSMenu alloc] init] autorelease];
+    [popupMenu addItemWithTitle:@"" action:NULL keyEquivalent:@""];  // dummy first item
+    
+    WebBackForwardList* backforward = [m_webViewController.webView backForwardList];
+    
+    int forwardCount = [backforward forwardListCount];
+    
+    for (int i = 1; i <= forwardCount; ++i)
+    {
+        WebHistoryItem* item = [backforward itemAtIndex:i];
+        [popupMenu addItemWithTitle:[item title] action:@selector(forwardItemAction:) keyEquivalent:[item URLString]];
+    }
+    
+    // use a temporary NSPopUpButtonCell to display the menu.
+    NSPopUpButtonCell *popupCell = [[[NSPopUpButtonCell alloc] initTextCell:@"" pullsDown:YES] autorelease];
+    [popupCell setMenu: popupMenu];
+    [popupCell trackMouse:[NSApp currentEvent] inRect:[inSender bounds] ofView:inSender untilMouseUp:YES];
+}
+
 
 #pragma mark - 
 #pragma mark NSWindowDelegate
@@ -379,6 +438,8 @@ static NSString*    DefaultURL =@"http://www.163.com";
         [button setImage:icon];
         [button setTarget:self];
         [button setAction:@selector(back:)];
+        
+        // use a cell for tracking mouse event.
         [[button cell] setClickHoldAction:@selector(backMenu:)];
         
         [toolbarItem setView:button];
@@ -400,24 +461,38 @@ static NSString*    DefaultURL =@"http://www.163.com";
         [toolbarItem setPaletteLabel:NSLocalizedString(@"Go Back", nil)];
         [toolbarItem setImage:[NSImage imageNamed:IconBack]];
     }
-    else if ([itemIdent isEqual: ForwardToolbarItemIdentifier])
+    else if ([itemIdent isEqual: ForwardToolbarItemIdentifier] && willBeInserted)
     {
 
-        toolbarItem = [[[NSToolbarItem alloc] initWithItemIdentifier: itemIdent] autorelease];
+        toolbarItem = [[[ToolbarViewItem alloc] initWithItemIdentifier: itemIdent] autorelease];
         
         // Set the text label to be displayed in the toolbar and customization palette
         [toolbarItem setLabel: @"Forward"];
         [toolbarItem setPaletteLabel: @"Forward"];
         
-        // Set up a reasonable tooltip, and image   Note, these aren't localized, but you will likely want to localize many of the item's properties
-        [toolbarItem setToolTip: @"Go Forward"];
+        NSSize size = NSMakeSize(32., 32.);
+        NSImage* icon = [NSImage imageNamed:IconForward];
+        [icon setScalesWhenResized:YES];
+        NSButton* button = [[self createToolbarPopupButton:toolbarItem] autorelease];
+        [button setImage:icon];
+        [button setTarget:self];
+        [button setAction:@selector(forward:)];
         
-        NSImage* imageObj = [NSImage imageNamed:IconForward];
-        [toolbarItem setImage: imageObj];
+        // use a cell for tracking mouse event.
+        [[button cell] setClickHoldAction:@selector(forwardMenu:)];
         
-        // Tell the item what message to send when it is clicked
-        [toolbarItem setTarget: self];
-        [toolbarItem setAction: @selector(forward:)];
+        [toolbarItem setView:button];
+        [toolbarItem setMinSize:size];
+        [toolbarItem setMaxSize:size];
+        [toolbarItem setTarget:self];
+        [toolbarItem setAction:@selector(forward:)];      // so validateToolbarItem: works correctly
+        
+        NSMenuItem *menuFormRep = [[[NSMenuItem alloc] init] autorelease];
+        [menuFormRep setTarget:self];
+        [menuFormRep setAction:@selector(forward:)];
+        [menuFormRep setTitle:[toolbarItem label]];
+        
+        [toolbarItem setMenuFormRepresentation:menuFormRep];
     }
     else if ([itemIdent isEqual: RefreshToolbarItemIdentifier])
     {
@@ -547,12 +622,15 @@ static NSString*    DefaultURL =@"http://www.163.com";
     // (for example:  of the save items action)
     
     BOOL enable = NO;
-    if ([[toolbarItem itemIdentifier] isEqual: BackToolbarItemIdentifier]) {
+    if ([[toolbarItem itemIdentifier] isEqual: BackToolbarItemIdentifier])
+    {
         enable = m_canGoBack;
         [toolbarItem setEnabled:enable];
 
-    } else if ([[toolbarItem itemIdentifier] isEqual: ForwardToolbarItemIdentifier]) {
+    } else if ([[toolbarItem itemIdentifier] isEqual: ForwardToolbarItemIdentifier])
+    {
         enable = m_canGoForward;
+        [toolbarItem setEnabled:enable];
     } else if ([[toolbarItem itemIdentifier] isEqual: RefreshToolbarItemIdentifier]){
         enable = YES;
     }else if ([[toolbarItem itemIdentifier] isEqual: LoadToolbarItemIdentifier]){

@@ -34,25 +34,12 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "MacBrowser/Controllers/AppWindowController.m"
-         timestampString = "391539222.75685"
+         timestampString = "391624176.104319"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "494"
-         endingLineNumber = "494"
+         startingLineNumber = "569"
+         endingLineNumber = "569"
          landmarkName = "-toolbar:itemForItemIdentifier:willBeInsertedIntoToolbar:"
-         landmarkType = "5">
-      </FileBreakpoint>
-      <FileBreakpoint
-         shouldBeEnabled = "Yes"
-         ignoreCount = "0"
-         continueAfterRunningActions = "No"
-         filePath = "MacBrowser/Controllers/AppWindowController.m"
-         timestampString = "391539226.728994"
-         startingColumnNumber = "9223372036854775807"
-         endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "324"
-         endingLineNumber = "324"
-         landmarkName = "-backMenu:"
          landmarkType = "5">
       </FileBreakpoint>
    </FileBreakpoints>
