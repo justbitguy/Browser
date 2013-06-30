@@ -8,6 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 #import "WebViewController.h"
+#import <WebKit/WebUIDelegate.h>
 
 @class  WebView;
 @class WebViewController;

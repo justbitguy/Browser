@@ -205,6 +205,10 @@ static NSString*    DefaultURL =@"http://www.163.com";
     WebView* webView = [m_webViewController webView];
     [self.window.contentView addSubview:webView];
     m_webViewController.delegate = self;
+    
+    // for multiwindow.
+    [webView setUIDelegate:self];
+    [webView setGroupName:@"myWebView"];
 }
 
 - (void) setupToolbar {
@@ -650,7 +654,10 @@ static NSString*    DefaultURL =@"http://www.163.com";
     return enabled;
 }
 
-
+- (WebView*) webview
+{
+   return [self.webViewController webView];
+}
 
 #pragma mark - 
 #pragma mark ViewControllerDelegate
@@ -670,4 +677,11 @@ static NSString*    DefaultURL =@"http://www.163.com";
     [self.window setTitle:title];
 }
 
+#pragma mark - 
+#pragma mark WebUIDelegate
+- (WebView*) webView:(WebView *)sender createWebViewWithRequest:(NSURLRequest *)request
+{
+    AppWindowController * newWindow = [[AppWindowController alloc] init];
+    return  [newWindow webview];
+}
 @end
